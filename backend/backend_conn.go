@@ -51,6 +51,9 @@ type Conn struct {
 
 	pushTimestamp int64
 	pkgErr        error
+
+	prepareCache map[string]*Stmt
+
 }
 
 func (c *Conn) Connect(addr string, user string, password string, db string) error {
@@ -63,6 +66,7 @@ func (c *Conn) Connect(addr string, user string, password string, db string) err
 	c.collation = mysql.DEFAULT_COLLATION_ID
 	c.charset = mysql.DEFAULT_CHARSET
 
+	c.prepareCache = make(map[string]*Stmt)
 	return c.ReConnect()
 }
 

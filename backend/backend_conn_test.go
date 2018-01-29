@@ -24,7 +24,7 @@ import (
 func newTestConn() *Conn {
 	c := new(Conn)
 
-	if err := c.Connect("127.0.0.1:3306", "root", "", "kingshard"); err != nil {
+	if err := c.Connect("127.0.0.1:3307", "root", "root", "kingshard"); err != nil {
 		panic(err)
 	}
 
@@ -89,12 +89,12 @@ func TestConn_Insert(t *testing.T) {
 }
 
 func TestConn_Select(t *testing.T) {
-	s := `select str, f, e from kingshard_test_conn where id = 1`
+	s := `select str, f, e from test_shard_hash_0003 where id = ?`
 
 	c := newTestConn()
 	defer c.Close()
 
-	if result, err := c.Execute(s); err != nil {
+	if result, err := c.Execute(s, 3); err != nil {
 		t.Fatal(err)
 	} else {
 		if len(result.Fields) != 3 {

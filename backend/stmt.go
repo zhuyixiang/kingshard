@@ -182,6 +182,11 @@ func (s *Stmt) write(args ...interface{}) error {
 }
 
 func (c *Conn) Prepare(query string) (*Stmt, error) {
+	stat, ok := c.prepareCache[query]
+	if ok {
+		return stat, nil
+	}
+
 	if err := c.writeCommandStr(mysql.COM_STMT_PREPARE, query); err != nil {
 		return nil, err
 	}
@@ -229,5 +234,6 @@ func (c *Conn) Prepare(query string) (*Stmt, error) {
 		}
 	}
 
+	c.prepareCache[query] = s
 	return s, nil
 }

@@ -56,6 +56,7 @@ type NodeConfig struct {
 
 	Master string `yaml:"master"`
 	Slave  string `yaml:"slave"`
+	StatCacheNum int `yaml:"statCacheNum"`
 }
 
 //schema对应的结构体
