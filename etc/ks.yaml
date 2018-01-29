@@ -65,7 +65,7 @@ nodes :
     password : root
 
     # master represents a real mysql master server 
-    master : 127.0.0.1:3309
+    master : 127.0.0.1:3308
 
     # slave represents a real mysql salve server 
     slave : 
