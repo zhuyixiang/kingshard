@@ -16,14 +16,15 @@ package sqlparser
 
 import (
 	"testing"
+	"fmt"
 )
 
-func testParse(t *testing.T, sql string) {
-	_, err := Parse(sql)
+func testParse(t *testing.T, sql string) Statement {
+	stat, err := Parse(sql)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	return stat
 }
 
 func TestSet(t *testing.T) {
@@ -54,4 +55,45 @@ func TestMixer(t *testing.T) {
 
 	sql = "show proxy abc"
 	testParse(t, sql)
+}
+
+func TestSelect(t *testing.T) {
+	sql := "select * from table1 where id = ? and name =? and type= ?"
+	statement := testParse(t, sql)
+	stat1 := statement.(*Select)
+	fmt.Println(String(stat1.From))
+	if stat1.Where == nil {
+		fmt.Println("no Where")
+	} else {
+		testFillOne(stat1.Where.Expr)
+		fmt.Println(String(stat1))
+	}
+
+	//sql = "update table2 set col1 = ? , col2 = ? where id = ?"
+	//statement = testParse(t, sql)
+	//stat2 := statement.(*Update)
+	//fmt.Println(String(stat2.Table))
+	//fmt.Println(String(stat1.Where.Expr))
+
+	//sql := "insert into table1(col1, col2) values(?, ?)"
+	//statement := testParse(t, sql)
+	//stat3 := statement.(*Insert)
+	//fmt.Println(String(stat3.Table))
+	//fmt.Println(String(stat3.Rows))
+}
+
+func testFillOne(expr BoolExpr) {
+	switch v:= expr.(type) {
+	case *ComparisonExpr:
+		comp := expr.(*ComparisonExpr)
+		fmt.Println(comp.Left)
+		bytes := []byte{'C','D'}
+		comp.Right = StrVal(bytes)
+	case *AndExpr:
+		and := expr.(*AndExpr)
+		testFillOne(and.Left)
+		testFillOne(and.Right)
+	default:
+		fmt.Println(v)
+	}
 }

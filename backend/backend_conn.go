@@ -33,7 +33,7 @@ var (
 //proxy <-> mysql server
 type Conn struct {
 	conn net.Conn
-
+	threadId uint32
 	pkg *mysql.PacketIO
 
 	addr     string
@@ -132,6 +132,7 @@ func (c *Conn) Close() error {
 		c.conn = nil
 		c.salt = nil
 		c.pkgErr = nil
+		c.prepareCache = make(map[string]*Stmt)
 	}
 
 	return nil
@@ -166,7 +167,11 @@ func (c *Conn) readInitialHandshake() error {
 	//skip mysql version and connection id
 	//mysql version end with 0x00
 	//connection id length is 4
-	pos := 1 + bytes.IndexByte(data[1:], 0x00) + 1 + 4
+	pos := 1 + bytes.IndexByte(data[1:], 0x00) + 1
+
+	c.threadId = uint32(binary.LittleEndian.Uint32(data[pos : pos+4]))
+
+	pos = pos + 4
 
 	c.salt = append(c.salt, data[pos:pos+8]...)
 

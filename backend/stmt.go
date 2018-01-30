@@ -52,6 +52,9 @@ func (s *Stmt) Execute(args ...interface{}) (*mysql.Result, error) {
 }
 
 func (s *Stmt) Close() error {
+	if _, ok := s.conn.prepareCache[s.query]; ok{
+		return nil
+	}
 	if err := s.conn.writeCommandUint32(mysql.COM_STMT_CLOSE, s.id); err != nil {
 		return err
 	}
@@ -234,6 +237,7 @@ func (c *Conn) Prepare(query string) (*Stmt, error) {
 		}
 	}
 
+	s.query = query
 	c.prepareCache[query] = s
 	return s, nil
 }

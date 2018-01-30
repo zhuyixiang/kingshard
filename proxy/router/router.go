@@ -518,16 +518,16 @@ func (r *Router) buildReplacePlan(db string, statement sqlparser.Statement) (*Pl
 }
 
 //rewrite select sql
-func (r *Router) rewriteSelectSql(plan *Plan, node *sqlparser.Select, tableIndex int) string {
+func (r *Router) rewriteSelectSql(plan *Plan, sel *sqlparser.Select, tableIndex int) string {
 	buf := sqlparser.NewTrackedBuffer(nil)
 	buf.Fprintf("select %v%s",
-		node.Comments,
-		node.Distinct,
+		sel.Comments,
+		sel.Distinct,
 	)
 
 	var prefix string
 	//rewrite select expr
-	for _, expr := range node.SelectExprs {
+	for _, expr := range sel.SelectExprs {
 		switch v := expr.(type) {
 		case *sqlparser.StarExpr:
 			//for shardTable.*,need replace table into shardTable_xxxx.
@@ -567,14 +567,14 @@ func (r *Router) rewriteSelectSql(plan *Plan, node *sqlparser.Select, tableIndex
 		prefix = ", "
 	}
 	//insert the group columns in the first of select cloumns
-	if len(node.GroupBy) != 0 {
+	if len(sel.GroupBy) != 0 {
 		prefix = ","
-		for _, n := range node.GroupBy {
+		for _, n := range sel.GroupBy {
 			buf.Fprintf("%s%v", prefix, n)
 		}
 	}
 	buf.Fprintf(" from ")
-	switch v := (node.From[0]).(type) {
+	switch v := (sel.From[0]).(type) {
 	case *sqlparser.AliasedTableExpr:
 		if len(v.As) != 0 {
 			fmt.Fprintf(buf, "%s_%04d as %s",
@@ -614,31 +614,31 @@ func (r *Router) rewriteSelectSql(plan *Plan, node *sqlparser.Select, tableIndex
 		}
 	default:
 		fmt.Fprintf(buf, "%s_%04d",
-			sqlparser.String(node.From[0]),
+			sqlparser.String(sel.From[0]),
 			tableIndex,
 		)
 	}
 	//append other tables
 	prefix = ", "
-	for i := 1; i < len(node.From); i++ {
-		buf.Fprintf("%s%v", prefix, node.From[i])
+	for i := 1; i < len(sel.From); i++ {
+		buf.Fprintf("%s%v", prefix, sel.From[i])
 	}
 
-	newLimit, err := node.Limit.RewriteLimit()
+	newLimit, err := sel.Limit.RewriteLimit()
 	if err != nil {
 		//do not change limit
-		newLimit = node.Limit
+		newLimit = sel.Limit
 	}
 	//rewrite where
 	oldright, err := plan.rewriteWhereIn(tableIndex)
 
 	buf.Fprintf("%v%v%v%v%v%s",
-		node.Where,
-		node.GroupBy,
-		node.Having,
-		node.OrderBy,
+		sel.Where,
+		sel.GroupBy,
+		sel.Having,
+		sel.OrderBy,
 		newLimit,
-		node.Lock,
+		sel.Lock,
 	)
 	//restore old right
 	if oldright != nil {

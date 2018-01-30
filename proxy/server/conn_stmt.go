@@ -25,6 +25,8 @@ import (
 	"github.com/flike/kingshard/core/golog"
 	"github.com/flike/kingshard/mysql"
 	"github.com/flike/kingshard/sqlparser"
+	"github.com/flike/kingshard/proxy/router"
+	"reflect"
 )
 
 var paramFieldData []byte
@@ -66,11 +68,15 @@ func (c *ClientConn) handleStmtPrepare(sql string) error {
 
 	var err error
 	s.s, err = sqlparser.Parse(sql)
+
 	if err != nil {
 		return fmt.Errorf(`parse sql "%s" error`, sql)
 	}
 
 	s.sql = sql
+	//plan, err := c.schema.rule.BuildPlan(c.db, s.s)
+	//c.getShardConns(true , plan)
+
 
 	defaultRule := c.schema.rule.DefaultRule
 
@@ -89,6 +95,7 @@ func (c *ClientConn) handleStmtPrepare(sql string) error {
 		return fmt.Errorf("prepare error %s", err)
 	}
 
+
 	t, err := co.Prepare(sql)
 	if err != nil {
 		return fmt.Errorf("prepare error %s", err)
@@ -106,12 +113,19 @@ func (c *ClientConn) handleStmtPrepare(sql string) error {
 	s.ResetParams()
 	c.stmts[s.id] = s
 
-	err = co.ClosePrepare(t.GetId())
-	if err != nil {
-		return err
-	}
+	//err = co.ClosePrepare(t.GetId())
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
+}
+
+//only use for prepare statement
+func chooseOnePlan(plan *router.Plan) (*router.Plan) {
+	singlePlan := new(router.Plan)
+
+	return singlePlan
 }
 
 func (c *ClientConn) writePrepare(s *Stmt) error {
@@ -236,6 +250,17 @@ func (c *ClientConn) handleStmtExecute(data []byte) error {
 	}
 
 	var err error
+	for _, arg := range s.args {
+		fmt.Println("type:", reflect.TypeOf(arg))
+		switch arg.(type) {
+		case string:
+			fmt.Println("string, ", arg)
+		default:
+			fmt.Println("number , ", arg)
+		}
+	}
+
+	fmt.Println("sql",sqlparser.String(s.s))
 
 	switch stmt := s.s.(type) {
 	case *sqlparser.Select:

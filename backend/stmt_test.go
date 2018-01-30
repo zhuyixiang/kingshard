@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 	"fmt"
+	"context"
 )
 
 func TestStmt_DropTable(t *testing.T) {
@@ -112,12 +113,12 @@ func TestStmt_Select(t *testing.T) {
 	c := newTestConn()
 	defer c.Close()
 	start := time.Now().UnixNano()
-	count := 5000
+	count := 300
 	for count > 0 {
 		count--
 		runClose(c, str, t)
 	}
-	fmt.Println( time.Now().UnixNano() - start)
+	fmt.Println(time.Now().UnixNano() - start)
 }
 func runClose(c *Conn, str string, t *testing.T) {
 	s, err := c.Prepare(str)
@@ -329,4 +330,33 @@ func TestStmt_Trans(t *testing.T) {
 	if err := s.Close(); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestStmt_ParamNum(t *testing.T) {
+	s := new(Stmt)
+	query := "123123"
+	s.query = query
+	fmt.Println(s.query)
+}
+
+type CancelTask struct {
+	isDone   bool
+	threadId uint32
+}
+
+func TestContext_Close(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
+	cancelTask := &CancelTask{}
+	cancelTask.threadId = 544
+
+	defer cancel()
+	go func() {
+		select {
+		case <-ctx.Done():
+			fmt.Println("kill query " + string(cancelTask.threadId))
+			return
+		}
+	}()
+	time.Sleep(10 * time.Second)
 }

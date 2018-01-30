@@ -515,13 +515,13 @@ func TestSelectPlan(t *testing.T) {
 func TestValueSharding(t *testing.T) {
 	var sql string
 
-	sql = "insert into test1 (id) values (5)"
+	sql = "insert into test1 (id) values ('5')"
 	checkPlan(t, sql, []int{5}, []int{1})
 
-	sql = "insert into test2 (id) values (10000)"
+	sql = "insert into test2 (id) values ('10000')"
 	checkPlan(t, sql, []int{1}, []int{0})
 
-	sql = "insert into test2 (id) values (20000)"
+	sql = "insert into test2 (id) values ('20000')"
 	checkPlan(t, sql, []int{2}, []int{0})
 
 	sql = "update test1 set a =10 where id =12"
@@ -535,4 +535,10 @@ func TestValueSharding(t *testing.T) {
 
 	sql = "replace into test1(id) values(5)"
 	checkPlan(t, sql, []int{5}, []int{1})
+}
+
+func TestSelectPlan2 (t *testing.T) {
+	var sql string
+	sql = "select * from test1 where id =5"
+	checkPlan(t, sql, []int{5}, []int{1}) //table_5 node1
 }
