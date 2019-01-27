@@ -15,15 +15,16 @@
 package backend
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/flike/kingshard/config"
-	"github.com/flike/kingshard/core/errors"
-	"github.com/flike/kingshard/core/golog"
+	"github.com/zhuyixiang/kingshard/config"
+	"github.com/zhuyixiang/kingshard/core/errors"
+	"github.com/zhuyixiang/kingshard/core/golog"
 )
 
 const (
@@ -285,6 +286,7 @@ func (n *Node) UpSlave(addr string) error {
 func (n *Node) DownMaster(addr string, state int32) error {
 	db := n.Master
 	if db == nil || db.addr != addr {
+		fmt.Printf("down master")
 		return errors.ErrNoMasterDB
 	}
 
@@ -317,6 +319,7 @@ func (n *Node) DownSlave(addr string, state int32) error {
 func (n *Node) ParseMaster(masterStr string) error {
 	var err error
 	if len(masterStr) == 0 {
+		fmt.Printf("parse error")
 		return errors.ErrNoMasterDB
 	}
 

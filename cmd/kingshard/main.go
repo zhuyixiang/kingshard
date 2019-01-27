@@ -24,14 +24,13 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/flike/kingshard/config"
-	"github.com/flike/kingshard/core/golog"
-	"github.com/flike/kingshard/core/hack"
-	"github.com/flike/kingshard/proxy/server"
-	"github.com/flike/kingshard/web"
+	"github.com/zhuyixiang/kingshard/config"
+	"github.com/zhuyixiang/kingshard/core/golog"
+	"github.com/zhuyixiang/kingshard/proxy/server"
+	"github.com/zhuyixiang/kingshard/web"
 )
 
-var configFile *string = flag.String("config", "/etc/ks.yaml", "kingshard config file")
+var configFile *string = flag.String("config", "/home/zhuyx/go/src/github.com/zhuyixiang/kingshard/etc/ks.yaml", "kingshard config file")
 var logLevel *string = flag.String("log-level", "", "log level [debug|info|warn|error], default error")
 var version *bool = flag.Bool("v", false, "the version of kingshard")
 
@@ -54,8 +53,8 @@ func main() {
 	fmt.Print(banner)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	flag.Parse()
-	fmt.Printf("Git commit:%s\n", hack.Version)
-	fmt.Printf("Build time:%s\n", hack.Compile)
+	//fmt.Printf("Git commit:%s\n", hack.Version)
+	//fmt.Printf("Build time:%s\n", hack.Compile)
 	if *version {
 		return
 	}

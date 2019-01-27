@@ -122,8 +122,8 @@ schema :
 
 ```
 1. Install Go
-2. git clone https://github.com/flike/kingshard.git src/github.com/flike/kingshard
-3. cd src/github.com/flike/kingshard
+2. git clone https://github.com/zhuyixiang/kingshard.git src/github.com/zhuyixiang/kingshard
+3. cd src/github.com/zhuyixiang/kingshard
 4. source ./dev.sh
 5. make
 6. set the config file (etc/ks.yaml)

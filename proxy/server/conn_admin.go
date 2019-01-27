@@ -23,11 +23,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flike/kingshard/core/errors"
-	"github.com/flike/kingshard/core/golog"
-	"github.com/flike/kingshard/core/hack"
-	"github.com/flike/kingshard/mysql"
-	"github.com/flike/kingshard/sqlparser"
+	"github.com/zhuyixiang/kingshard/core/errors"
+	"github.com/zhuyixiang/kingshard/core/golog"
+	"github.com/zhuyixiang/kingshard/core/hack"
+	"github.com/zhuyixiang/kingshard/mysql"
+	"github.com/zhuyixiang/kingshard/sqlparser"
 )
 
 const (
